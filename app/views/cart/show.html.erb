@@ -4,7 +4,18 @@
 <% else %>
   <h3>Total: <%= number_to_currency(cart.total) %></h3>
   <% if current_user %>
-    <%= button_to "Check Out", profile_orders_path, method: :post %>
+    <h4>Choose an Address:</h4>
+    <% @addresses.each do |address| %>
+      <div id="address-details-<%= address.id %>">
+        <h4><%= address.name %></h4>
+        <%= address.street %><br>
+        <%= address.city %>,
+        <%= address.state %>
+        <%= address.zip %>
+        <%= button_to "Check Out with this Address", profile_orders_path(address: address.id), method: :post %>
+        <br>
+      </div>
+    <% end %>
   <% else %>
     <p>You must <%= link_to "register", registration_path %>
       or <%= link_to "log in", login_path %> to check out.</p>
