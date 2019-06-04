@@ -23,10 +23,14 @@ RSpec.describe "Checking out" do
   context "as a logged in regular user" do
     before :each do
       user = create(:user)
+      address1 = create(:address, user: user)
+      address2 = create(:address, user: user)
       login_as(user)
       visit cart_path
 
-      click_button "Check Out"
+      within "#address-details-#{address2.id}" do
+        click_button "Check Out with this Address"
+      end
       @new_order = Order.last
     end
 
