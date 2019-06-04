@@ -11,7 +11,7 @@
   <h2>Your Addresses</h2>
   <% @user_addresses.each do |address| %>
     <div id="address-details-<%= address.id %>">
-      <p><%= address.name %></p>
+      <h4><%= address.name %></h4>
       <p><%= address.street %><br>
       <%= address.city %>,
       <%= address.state %>

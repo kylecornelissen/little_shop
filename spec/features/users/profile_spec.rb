@@ -3,8 +3,11 @@ require 'rails_helper'
 RSpec.describe 'user profile', type: :feature do
   before :each do
     @user = create(:user, email: "user1@gmail.com", password: "password")
+
     @address1 = create(:address, user: @user)
     @address2 = create(:address, user: @user)
+
+    @order = create(:order, user: @user, address: @address1, status: 'shipped')
   end
 
   describe 'registered user visits their profile' do
@@ -37,47 +40,6 @@ RSpec.describe 'user profile', type: :feature do
   end
 
   describe 'registered user edits their addresses' do
-    it 'edits address info' do
-      visit root_path
-
-      click_link "Log in"
-
-      fill_in "Email", with: "user1@gmail.com"
-      fill_in "Password", with: "password"
-      click_button "Log in"
-
-      within '#address-data' do
-        click_link 'Edit'
-      end
-
-      expect(current_path).to eq('/profile/addresses/edit')
-      fill_in "Name", with: "Grandma's House"
-      fill_in "Street", with: "2468 Whodoweappreciate"
-      fill_in "City", with: "Minneapolis"
-      fill_in "State", with: "MN"
-      fill_in "Zip", with: "13579"
-      click_button 'Submit'
-    end
-
-    it 'deletes address' do
-      visit root_path
-
-      click_link "Log in"
-
-      fill_in "Email", with: "user1@gmail.com"
-      fill_in "Password", with: "password"
-      click_button "Log in"
-
-      within "#address-details-#{@address2.id}" do
-        click_link 'Delete'
-      end
-
-      expect(current_path).to eq(profile_path)
-      expect(page).to have_content("Your address has been deleted.")
-      expect(page).to_not have_css("#address-details-#{@address2.id}")
-      expect(page).to_not have_content(@address2.street)
-    end
-
     it 'creates address' do
       allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(@user)
 
@@ -105,6 +67,98 @@ RSpec.describe 'user profile', type: :feature do
         expect(page).to have_content("73733")
       end
     end
+
+    it 'edits address info' do
+      visit root_path
+
+      click_link "Log in"
+
+      fill_in "Email", with: "user1@gmail.com"
+      fill_in "Password", with: "password"
+      click_button "Log in"
+
+      within '#address-data' do
+        within "#address-details-#{@address2.id}" do
+          click_link 'Edit'
+        end
+      end
+
+      expect(current_path).to eq(edit_profile_address_path(@address2.id))
+      fill_in "Name", with: "Grandma's House"
+      fill_in "Street", with: "2468 Whodoweappreciate"
+      fill_in "City", with: "Minneapolis"
+      fill_in "State", with: "MN"
+      fill_in "Zip", with: "13579"
+      click_button 'Submit'
+
+      expect(current_path).to eq('/profile')
+
+      within '#address-data' do
+        expect(page).to have_content("Grandma's House")
+        expect(page).to have_content("2468 Whodoweappreciate")
+        expect(page).to have_content("Minneapolis")
+        expect(page).to have_content("MN")
+        expect(page).to have_content("13579")
+      end
+    end
+
+    it 'cannot edit address that is used in a completed order' do
+      visit root_path
+
+      click_link "Log in"
+
+      fill_in "Email", with: "user1@gmail.com"
+      fill_in "Password", with: "password"
+      click_button "Log in"
+
+      within '#address-data' do
+        within "#address-details-#{@address1.id}" do
+          click_link 'Edit'
+        end
+      end
+      
+      expect(current_path).to eq(profile_path)
+      expect(page).to have_content("Your address has been used in a completed order and cannot be updated.")
+    end
+
+    it 'deletes address' do
+      visit root_path
+
+      click_link "Log in"
+
+      fill_in "Email", with: "user1@gmail.com"
+      fill_in "Password", with: "password"
+      click_button "Log in"
+
+      within "#address-details-#{@address2.id}" do
+        click_link 'Delete'
+      end
+
+      expect(current_path).to eq(profile_path)
+      expect(page).to have_content("Your address has been deleted.")
+      expect(page).to_not have_css("#address-details-#{@address2.id}")
+      expect(page).to_not have_content(@address2.street)
+    end
+
+    it 'cannot delete address that is used in a completed order' do
+      visit root_path
+
+      click_link "Log in"
+
+      fill_in "Email", with: "user1@gmail.com"
+      fill_in "Password", with: "password"
+      click_button "Log in"
+
+      within '#address-data' do
+        within "#address-details-#{@address1.id}" do
+          click_link 'Delete'
+        end
+      end
+
+      expect(current_path).to eq('/profile')
+      expect(page).to have_content("Your address has been used in a completed order and cannot be deleted.")
+    end
+
   end
 
   describe 'registered user edits their profile' do
