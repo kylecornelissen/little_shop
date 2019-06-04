@@ -2,6 +2,9 @@ class CartController < ApplicationController
   before_action :visitor_or_user
 
   def show
+    if current_reguser?
+      @addresses = current_user.addresses
+    end
   end
 
   def increment
