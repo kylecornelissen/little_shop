@@ -7,6 +7,7 @@ class UsersController < ApplicationController
 
   def show
     @user = current_user
+    @user_addresses = @user.addresses
   end
 
   def edit
@@ -16,7 +17,7 @@ class UsersController < ApplicationController
   def create
     @user = User.new(user_params)
     if @user.save
-      @address = Address.create(name: "home", address: user_params[:address], city: user_params[:city], state: user_params[:state], zip: user_params[:zip], user: @user)
+      @address = Address.create(name: "home", street: user_params[:street], city: user_params[:city], state: user_params[:state], zip: user_params[:zip], user: @user)
       session[:user_id] = @user.id
       flash[:success] = "Registration Successful! You are now logged in."
       redirect_to profile_path
@@ -42,7 +43,7 @@ class UsersController < ApplicationController
   private
 
   def user_params
-    params.require(:user).permit(:name, :address, :city, :state, :zip, :email, :password, :password_confirmation)
+    params.require(:user).permit(:name, :street, :city, :state, :zip, :email, :password, :password_confirmation)
   end
 
   def user_update_params
