@@ -8,6 +8,14 @@ class Order < ApplicationRecord
 
   enum status: [:pending, :packaged, :shipped, :cancelled]
 
+  def item_quantity_greater_than_inventory
+    i = items.joins(:order_items)
+            .select('items.*')
+            .group('order_items.id')
+            .sum('DISTINCT(items.inventory - order_items.quantity)')
+    i.values.any? { |value| value < 0 }
+  end
+
   def total_item_count
     order_items.sum(:quantity)
   end

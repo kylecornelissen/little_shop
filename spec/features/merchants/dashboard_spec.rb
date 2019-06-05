@@ -2,12 +2,16 @@ require 'rails_helper'
 
 RSpec.describe 'merchant dashboard' do
   before :each do
+    user = create(:user)
+    address = create(:address, user: user)
     @merchant = create(:merchant)
     @admin = create(:admin)
-    @i1, @i2 = create_list(:item, 2, user: @merchant)
-    @o1, @o2 = create_list(:order, 2)
-    @o3 = create(:shipped_order)
-    @o4 = create(:cancelled_order)
+    @i1 = create(:item, user: @merchant, inventory: 0, image: 'www.photo.com')
+    @i2 = create(:item, user: @merchant, inventory: 5)
+    @o1 = create(:order, address: address)
+    @o2 = create(:order, address: address)
+    @o3 = create(:shipped_order, address: address)
+    @o4 = create(:cancelled_order, address: address)
     create(:order_item, order: @o1, item: @i1, quantity: 1, price: 2)
     create(:order_item, order: @o1, item: @i2, quantity: 2, price: 2)
     create(:order_item, order: @o2, item: @i2, quantity: 4, price: 2)
@@ -29,7 +33,7 @@ RSpec.describe 'merchant dashboard' do
       after :each do
         expect(page).to have_content(@merchant.name)
         expect(page).to have_content("Email: #{@merchant.email}")
-        expect(page).to have_content("Address: #{@merchant.street}")
+        expect(page).to have_content("Street: #{@merchant.street}")
         expect(page).to have_content("City: #{@merchant.city}")
         expect(page).to have_content("State: #{@merchant.state}")
         expect(page).to have_content("Zip: #{@merchant.zip}")
@@ -46,7 +50,7 @@ RSpec.describe 'merchant dashboard' do
     it 'shows merchant information' do
       expect(page).to have_content(@merchant.name)
       expect(page).to have_content("Email: #{@merchant.email}")
-      expect(page).to have_content("Address: #{@merchant.street}")
+      expect(page).to have_content("Street: #{@merchant.street}")
       expect(page).to have_content("City: #{@merchant.city}")
       expect(page).to have_content("State: #{@merchant.state}")
       expect(page).to have_content("Zip: #{@merchant.zip}")
@@ -71,6 +75,23 @@ RSpec.describe 'merchant dashboard' do
       end
     end
 
+    it 'shows warning if order item quantity exceeds inventory' do
+      within("#order-#{@o1.id}") do
+        expect(page).to have_link(@o1.id)
+        expect(page).to have_content(@o1.created_at)
+        expect(page).to have_content(@o1.total_quantity_for_merchant(@merchant.id))
+        expect(page).to have_content("!Order items quantity exceed inventory!")
+        expect(page).to have_content(@o1.total_price_for_merchant(@merchant.id))
+      end
+      within("#order-#{@o2.id}") do
+        expect(page).to have_link(@o2.id)
+        expect(page).to have_content(@o2.created_at)
+        expect(page).to have_content(@o2.total_quantity_for_merchant(@merchant.id))
+        expect(page).to_not have_content("!Order items quantity exceed inventory!")
+        expect(page).to have_content(@o2.total_price_for_merchant(@merchant.id))
+      end
+    end
+
     it 'does not show non-pending orders' do
       expect(page).to_not have_css("#order-#{@o3.id}")
       expect(page).to_not have_css("#order-#{@o4.id}")
@@ -89,6 +110,29 @@ RSpec.describe 'merchant dashboard' do
         expect(page.status_code).to eq(200)
         click_link('Items for Sale')
         expect(current_path).to eq(admin_merchant_items_path(@merchant))
+      end
+    end
+  end
+
+  describe 'merchant to-do list' do
+    it 'shows items with placeholder images with links to edit item to add an image' do
+      allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(@merchant)
+      visit dashboard_path
+
+      expect(page).to_not have_css("#placeholder-image-item-#{@i1.id}")
+      expect(page).to have_css("#placeholder-image-item-#{@i2.id}")
+
+      within "#placeholder-image-item-#{@i2.id}" do
+        expect(page).to have_link("#{@i2.name}")
+      end
+    end
+
+    it 'shows stats for unfulfilled orders with count and sum revenue' do
+      allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(@merchant)
+      visit dashboard_path
+
+      within "#unfulfilled-order-stats" do
+        expect(page).to have_content("You have 2 unfulfilled orders worth $14")
       end
     end
   end

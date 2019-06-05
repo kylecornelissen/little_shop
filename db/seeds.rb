@@ -111,6 +111,7 @@ order_item_35 = OrderItem.create!(item: tony, order: order_17, quantity: 1, pric
 order_item_36 = OrderItem.create!(item: cal, order: order_18, quantity: 1, price: cal.price, fulfilled: true, created_at: 2.days.ago, updated_at: 1.days.ago)
 order_item_37 = OrderItem.create!(item: ken, order: order_19, quantity: 1, price: ken.price, fulfilled: true, created_at: 5.days.ago, updated_at: 1.days.ago)
 order_item_38 = OrderItem.create!(item: ryan, order: order_20, quantity: 1, price: ryan.price, fulfilled: true, created_at: 4.days.ago, updated_at: 1.days.ago)
+order_item_39 = OrderItem.create!(item: honus, order: order_8, quantity: 3, price: honus.price, fulfilled: false)
 
 puts 'seed data finished'
 puts "Users created: #{User.count.to_i}"

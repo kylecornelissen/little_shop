@@ -99,10 +99,28 @@
           <%= order.id %>
           <% end %></td>
           <td><%= order.created_at %></td>
-          <td><%= order.total_quantity_for_merchant(@merchant.id) %></td>
+          <td><%= order.total_quantity_for_merchant(@merchant.id) %>
+            <%= "!Order items quantity exceed inventory!" if order.item_quantity_greater_than_inventory %></td>
           <td><%= order.total_price_for_merchant(@merchant.id) %></td>
         </tr>
       <% end %>
     </tbody>
   </table>
 <% end %>
+
+<h2>Merchant To-Do List:</h2>
+<br>
+<h4>Items that need pictures:</h4>
+<% if @items_with_placeholder_image != nil %>
+  <% @items_with_placeholder_image.each do |item| %>
+    <div id="placeholder-image-item-<%= item.id %>">
+      <%= link_to "#{item.name}", edit_dashboard_item_path(item.id) %>
+    <div>
+  <% end %>
+<% end %>
+<br>
+<h4>Unfulfilled Orders:</h4>
+  <div id="unfulfilled-order-stats">
+    You have <%= @unfulfilled_orders_count %> unfulfilled orders worth $<%= @unfulfilled_orders_revenue %>
+  </div>
+<br>
