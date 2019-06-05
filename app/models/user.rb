@@ -110,7 +110,6 @@ class User < ApplicationRecord
   def unfulfilled_orders_revenue
     Order.joins(:items).where('items.merchant_id' => self.id, 'orders.status' => 'pending')
     .sum('order_items.quantity * order_items.price')
-
   end
 
   def self.active_merchants

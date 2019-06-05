@@ -6,8 +6,8 @@ RSpec.describe 'merchant dashboard' do
     address = create(:address, user: user)
     @merchant = create(:merchant)
     @admin = create(:admin)
-    @i1 = create(:item, user: @merchant, image: 'www.photo.com')
-    @i2 = create(:item, user: @merchant)
+    @i1 = create(:item, user: @merchant, inventory: 0, image: 'www.photo.com')
+    @i2 = create(:item, user: @merchant, inventory: 5)
     @o1 = create(:order, address: address)
     @o2 = create(:order, address: address)
     @o3 = create(:shipped_order, address: address)
@@ -71,6 +71,23 @@ RSpec.describe 'merchant dashboard' do
         expect(page).to have_link(@o2.id)
         expect(page).to have_content(@o2.created_at)
         expect(page).to have_content(@o2.total_quantity_for_merchant(@merchant.id))
+        expect(page).to have_content(@o2.total_price_for_merchant(@merchant.id))
+      end
+    end
+
+    it 'shows warning if order item quantity exceeds inventory' do
+      within("#order-#{@o1.id}") do
+        expect(page).to have_link(@o1.id)
+        expect(page).to have_content(@o1.created_at)
+        expect(page).to have_content(@o1.total_quantity_for_merchant(@merchant.id))
+        expect(page).to have_content("!Order items quantity exceed inventory!")
+        expect(page).to have_content(@o1.total_price_for_merchant(@merchant.id))
+      end
+      within("#order-#{@o2.id}") do
+        expect(page).to have_link(@o2.id)
+        expect(page).to have_content(@o2.created_at)
+        expect(page).to have_content(@o2.total_quantity_for_merchant(@merchant.id))
+        expect(page).to_not have_content("!Order items quantity exceed inventory!")
         expect(page).to have_content(@o2.total_price_for_merchant(@merchant.id))
       end
     end
