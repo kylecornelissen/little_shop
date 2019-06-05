@@ -121,8 +121,10 @@ RSpec.describe Order, type: :model do
       @oi_2 = create(:fulfilled_order_item, order: @order, item: @item_2, price: 2, quantity: 1, created_at: yesterday, updated_at: 2.hours.ago)
 
       @merchant = create(:merchant)
-      @i1, @i2 = create_list(:item, 2, user: @merchant)
-      @o1, @o2 = create_list(:order, 2, address: address)
+      @i1 = create(:item, user: @merchant, inventory: 0)
+      @i2 = create(:item, user: @merchant, inventory: 5)
+      @o1 = create(:order, address: address)
+      @o2 = create(:order, address: address)
       @o3 = create(:shipped_order, address: address)
       @o4 = create(:cancelled_order, address: address)
       create(:order_item, order: @o1, item: @i1, quantity: 1, price: 2)
@@ -130,6 +132,11 @@ RSpec.describe Order, type: :model do
       create(:order_item, order: @o2, item: @i2, quantity: 4, price: 2)
       create(:order_item, order: @o3, item: @i1, quantity: 4, price: 2)
       create(:order_item, order: @o4, item: @i2, quantity: 5, price: 2)
+    end
+
+    it '.item_quantity_greater_than_inventory' do
+      expect(@o1.item_quantity_greater_than_inventory).to eq(true)
+      expect(@o2.item_quantity_greater_than_inventory).to eq(false)
     end
 
     it '.total_quantity_for_merchant' do
