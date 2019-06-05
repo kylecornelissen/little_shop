@@ -3,7 +3,7 @@
   <p>Your Cart is empty.</p>
 <% else %>
   <h3>Total: <%= number_to_currency(cart.total) %></h3>
-  <% if current_user %>
+  <% if current_user && @addresses.count > 0 %>
     <h4>Choose an Address:</h4>
     <% @addresses.each do |address| %>
       <div id="address-details-<%= address.id %>">
@@ -16,6 +16,9 @@
         <br>
       </div>
     <% end %>
+  <% elsif current_user %>
+    You don't have any addresses in your account<br>
+    <%= link_to "Add an Address to Check Out", new_profile_address_path %><br><br>
   <% else %>
     <p>You must <%= link_to "register", registration_path %>
       or <%= link_to "log in", login_path %> to check out.</p>

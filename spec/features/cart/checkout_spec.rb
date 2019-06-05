@@ -79,6 +79,18 @@ RSpec.describe "Checking out" do
     end
   end
 
+  context "as a user with no addresses" do
+    it 'should not be able to see a check out button' do
+      user = create(:user)
+      login_as(user)
+
+      visit cart_path
+
+      expect(page).to have_content("You don't have any addresses in your account")
+      expect(page).to have_link("Add an Address to Check Out")
+    end
+  end
+
   context "as a visitor" do
     it "should tell the user to login or register" do
       visit cart_path
