@@ -6,12 +6,41 @@ RSpec.describe 'Merchant Dashboard Items page' do
   before :each do
     @merchant = create(:merchant)
     @admin = create(:admin)
+    user = create(:user)
+    @address = create(:address, user: user)
 
     @items = create_list(:item, 3, user: @merchant)
     @items << create(:inactive_item, user: @merchant)
 
-    @order = create(:shipped_order)
+    @order = create(:shipped_order, address: @address)
     @oi_1 = create(:fulfilled_order_item, order: @order, item: @items[0], price: 1, quantity: 1, created_at: 2.hours.ago, updated_at: 50.minutes.ago)
+  end
+
+  describe 'shows a list of items' do
+    it 'shows a warning when order item quantity across all orders exceeds item inventory' do
+      merchant2 = create(:merchant)
+
+      item1 = create(:item, name: "macbook", user: merchant2, inventory: 10)
+      item2 = create(:item, name: "laptop", user: merchant2, inventory: 10)
+
+      order1 = create(:order, address: @address)
+      order2 = create(:order, address: @address)
+
+      oi1 = create(:order_item, item: item1, order: order1, quantity: 4)
+      oi2 = create(:order_item, item: item2, order: order1, quantity: 4)
+      oi3 = create(:order_item, item: item1, order: order2, quantity: 8)
+
+      login_as(merchant2)
+      visit dashboard_items_path
+
+      within "#item-#{item1.id}" do
+        expect(page).to have_content("Warning: Order items quantity exceed inventory!")
+      end
+
+      within "#item-#{item2.id}" do
+        expect(page).to_not have_content("Warning: Order items quantity exceed inventory!")
+      end
+    end
   end
 
   describe 'allows me to disable then re-enable an active item' do

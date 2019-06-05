@@ -7,7 +7,7 @@
   <img id="item-<%= item.id %>-image" alt="image for <%= item.name %>" src="<%= item.image %>" width="<%= img_width %>" />
   </a>
   <p>Price: <%= number_to_currency(item.price) %></p>
-  <p>Inventory: <%= item.inventory %></p>
+  <p>Inventory: <%= item.inventory %><br><%= "Warning: Order items quantity exceed inventory!" if item.inventory_less_than_ordered_items %></p>
   <% if item.active? %>
     <%= button_to "Disable Item", dashboard_disable_item_path(item), method: :patch %>
   <% else %>
