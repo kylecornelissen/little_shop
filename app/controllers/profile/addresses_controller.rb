@@ -32,12 +32,13 @@ class Profile::AddressesController < ApplicationController
   end
 
   def destroy
+    @user = current_user
     @address = Address.find(params[:id])
     if @address.used_in_completed_order
       flash[:danger] = "Your address has been used in a completed order and cannot be deleted."
       redirect_to profile_path
     else
-      @address.destroy
+      @user.addresses.delete(@address)
       flash[:success] = "Your address has been deleted."
       redirect_to profile_path
     end
