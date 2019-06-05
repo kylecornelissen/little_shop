@@ -4,12 +4,14 @@ include ActionView::Helpers::NumberHelper
 
 RSpec.describe 'Profile Orders page', type: :feature do
   before :each do
-    @user = create(:user)
+    @user = create(:user, password: "password", email: "user@user.com")
     @admin = create(:admin)
+
 
     @merchant_1 = create(:merchant)
     @merchant_2 = create(:merchant)
 
+    @address = create(:address, user: @user)
     @item_1 = create(:item, user: @merchant_1)
     @item_2 = create(:item, user: @merchant_2)
   end
@@ -27,7 +29,7 @@ RSpec.describe 'Profile Orders page', type: :feature do
     describe 'should show information about each order when I do have orders' do
       before :each do
         yesterday = 1.day.ago
-        @order = create(:order, user: @user, created_at: yesterday)
+        @order = create(:order, user: @user, address: @address, created_at: yesterday)
         @oi_1 = create(:order_item, order: @order, item: @item_1, price: 1, quantity: 1, created_at: yesterday, updated_at: yesterday)
         @oi_2 = create(:fulfilled_order_item, order: @order, item: @item_2, price: 2, quantity: 1, created_at: yesterday, updated_at: 2.hours.ago)
       end
@@ -55,7 +57,7 @@ RSpec.describe 'Profile Orders page', type: :feature do
     describe 'should show a single order show page' do
       before :each do
         yesterday = 1.day.ago
-        @order = create(:order, user: @user, created_at: yesterday)
+        @order = create(:order, user: @user, address: @address, created_at: yesterday)
         @oi_1 = create(:order_item, order: @order, item: @item_1, price: 1, quantity: 3, created_at: yesterday, updated_at: yesterday)
         @oi_2 = create(:fulfilled_order_item, order: @order, item: @item_2, price: 2, quantity: 5, created_at: yesterday, updated_at: 2.hours.ago)
       end
@@ -94,6 +96,39 @@ RSpec.describe 'Profile Orders page', type: :feature do
         end
         expect(page).to have_content("Item Count: #{@order.total_item_count}")
         expect(page).to have_content("Total Cost: #{number_to_currency(@order.total_cost)}")
+      end
+    end
+
+    it 'should be able to change the shipping address on a single order' do
+      @order = create(:order, user: @user, address: @address, created_at: 1.days.ago)
+      @oi_1 = create(:order_item, order: @order, item: @item_1, price: 1, quantity: 3, created_at: 1.days.ago, updated_at: 1.days.ago)
+      @oi_2 = create(:fulfilled_order_item, order: @order, item: @item_2, price: 2, quantity: 5, created_at: 1.days.ago, updated_at: 2.hours.ago)
+
+      visit root_path
+
+      click_link "Log in"
+
+      fill_in "Email", with: "user@user.com"
+      fill_in "Password", with: "password"
+      click_button "Log in"
+
+      visit profile_order_path(@order)
+      click_link "Change Shipping Address"
+
+      fill_in "Name", with: "work"
+      fill_in "Street", with: "987 Sesame St"
+      fill_in "City", with: "Brooklyn"
+      fill_in "State", with: "NY"
+      fill_in "Zip", with: "73733"
+      click_button 'Submit'
+
+      expect(current_path).to eq(profile_order_path(@order))
+
+      within '#shipping-address' do
+        expect(page).to have_content("987 Sesame St")
+        expect(page).to have_content("Brooklyn")
+        expect(page).to have_content("NY")
+        expect(page).to have_content("73733")
       end
     end
   end
