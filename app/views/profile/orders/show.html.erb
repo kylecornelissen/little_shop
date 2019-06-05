@@ -7,7 +7,9 @@
     <p>Shipping Address:<br>
     <%= @order_address.street %><br>
     <%= @order_address.city %>, <%= @order_address.state %> <%= @order_address.zip %><br>
-    <%= link_to "Change Shipping Address", profile_update_order_address_path(@order) %></p>
+    <% if @order.status != "shipped" %>
+      <%= link_to "Change Shipping Address", profile_update_order_address_path(@order) %></p>
+    <% end %>
   </div>
   <p>Item Count: <%= @order.total_item_count %></p>
   <p>Total Cost: <%= number_to_currency(@order.total_cost) %></p>
