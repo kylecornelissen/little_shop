@@ -48,4 +48,10 @@ class Item < ApplicationRecord
   def ordered?
     order_items.count > 0
   end
+
+  def inventory_less_than_ordered_items
+    oi_sum = order_items.sum(:quantity)
+    dif = inventory - oi_sum
+    dif < 0
+  end
 end

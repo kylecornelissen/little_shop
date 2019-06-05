@@ -52,12 +52,27 @@ RSpec.describe Item, type: :model do
 
   describe 'instance methods' do
     before :each do
+      user = create(:user)
+      @address = create(:address, user: user)
       @merchant = create(:merchant)
-      @item = create(:item, user: @merchant)
-      @order_item_1 = create(:fulfilled_order_item, item: @item, created_at: 4.days.ago, updated_at: 12.hours.ago)
-      @order_item_2 = create(:fulfilled_order_item, item: @item, created_at: 2.days.ago, updated_at: 1.day.ago)
-      @order_item_3 = create(:fulfilled_order_item, item: @item, created_at: 2.days.ago, updated_at: 1.day.ago)
-      @order_item_4 = create(:order_item, item: @item, created_at: 2.days.ago, updated_at: 1.day.ago)
+      @item = create(:item, user: @merchant, inventory: 10)
+      order = create(:order, address: @address)
+      @order_item_1 = create(:fulfilled_order_item, item: @item, quantity: 2, order: order, created_at: 4.days.ago, updated_at: 12.hours.ago)
+      @order_item_2 = create(:fulfilled_order_item, item: @item, quantity: 2, order: order, created_at: 2.days.ago, updated_at: 1.day.ago)
+      @order_item_3 = create(:fulfilled_order_item, item: @item, quantity: 2, order: order, created_at: 2.days.ago, updated_at: 1.day.ago)
+      @order_item_4 = create(:order_item, item: @item, quantity: 2, order: order, created_at: 2.days.ago, updated_at: 1.day.ago)
+    end
+
+    it '.inventory_less_than_ordered_items' do
+      item2 = create(:item, user: @merchant, inventory: 10)
+      order2 = create(:order, address: @address)
+      order3 = create(:order, address: @address)
+      oi1 = create(:order_item, item: @item, quantity: 3, order: order2)
+      oi2 = create(:order_item, item: item2, quantity: 5, order: order2)
+      oi3 = create(:order_item, item: item2, quantity: 4, order: order3)
+
+      expect(@item.inventory_less_than_ordered_items).to eq(true)
+      expect(item2.inventory_less_than_ordered_items).to eq(false)
     end
 
     describe "#average_fulfillment_time" do
