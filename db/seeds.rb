@@ -17,7 +17,8 @@ buyer_2 = User.create!(email: 'buyer2@gmail.com', password: 'password', active: 
 buyer_3 = User.create!(email: 'buyer3@gmail.com', password: 'password', active: true, name: 'Buyer 3', street: '1234 Test Dr', city: 'Kansas City', state: 'KS', zip: '80123', role: 0)
 buyer_4 = User.create!(email: 'buyer4@gmail.com', password: 'password', active: true, name: 'Buyer 4', street: '1234 Test Dr', city: 'Colorado Springs', state: 'CO', zip: '80123', role: 0)
 buyer_5 = User.create!(email: 'buyer5@gmail.com', password: 'password', active: true, name: 'Buyer 5', street: '1234 Test Dr', city: 'Los Angeles', state: 'CA', zip: '80123', role: 0)
-buyer_6 = User.create!(email: 'buyer6@gmail.com', password: 'password', active: true, name: 'Buyer 6', street: '1234 Test Dr', city: 'Kansas city', state: 'MO', zip: '80123', role: 0)
+buyer_6 = User.create!(email: 'buyer6@gmail.com', password: 'password', active: true, name: 'Buyer 6', street: '1234 Test Dr', city: 'Kansas City', state: 'MO', zip: '80123', role: 0)
+buyer_7 = User.create!(email: 'buyer7@gmail.com', password: 'password', active: true, name: 'Buyer 7', street: '1234 Test Dr', city: 'Grand Forks', state: 'ND', zip: '80123', role: 0)
 
 address_11 = Address.create!(name: 'home', street: '1234 Test Dr', city: 'Denver', state: 'CO', zip: '80123', user: buyer_1)
 address_12 = Address.create!(name: 'work', street: '2345 Test Dr', city: 'Colorado Springs', state: 'CO', zip: '80123', user: buyer_1)
