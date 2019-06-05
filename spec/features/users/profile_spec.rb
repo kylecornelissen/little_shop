@@ -68,6 +68,26 @@ RSpec.describe 'user profile', type: :feature do
       end
     end
 
+    it 'cannot create address without all required fields filled in' do
+      allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(@user)
+
+      visit profile_path
+
+      within '#address-data' do
+        click_link 'Add New Address'
+      end
+
+      expect(current_path).to eq('/profile/addresses/new')
+      fill_in "Name", with: "work"
+      fill_in "City", with: "Brooklyn"
+      fill_in "State", with: "NY"
+      fill_in "Zip", with: "73733"
+      click_button 'Submit'
+
+      expect(current_path).to eq('/profile/addresses')
+      expect(page).to have_content("The address you entered is missing required fields.")
+    end
+
     it 'edits address info' do
       visit root_path
 
@@ -116,7 +136,7 @@ RSpec.describe 'user profile', type: :feature do
           click_link 'Edit'
         end
       end
-      
+
       expect(current_path).to eq(profile_path)
       expect(page).to have_content("Your address has been used in a completed order and cannot be updated.")
     end
