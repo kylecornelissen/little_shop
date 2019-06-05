@@ -75,6 +75,12 @@ RSpec.describe User, type: :model do
       u4 = create(:user, state: "IA", city: "Des Moines")
       u5 = create(:user, state: "IA", city: "Des Moines")
       u6 = create(:user, state: "IA", city: "Des Moines")
+      a1 = create(:address, user: @u1)
+      a2 = create(:address, user: @u2)
+      a3 = create(:address, user: @u3)
+      a4 = create(:address, user: u4)
+      a5 = create(:address, user: u5)
+      a6 = create(:address, user: u6)
 
       @m1 = create(:merchant)
       @i1 = create(:item, merchant_id: @m1.id, inventory: 20)
@@ -90,13 +96,13 @@ RSpec.describe User, type: :model do
       @m2 = create(:merchant)
       @i10 = create(:item, merchant_id: @m2.id, inventory: 20)
 
-      o1 = create(:shipped_order, user: @u1)
-      o2 = create(:shipped_order, user: @u2)
-      o3 = create(:shipped_order, user: @u3)
-      o4 = create(:shipped_order, user: @u1)
-      o5 = create(:shipped_order, user: @u1)
-      o6 = create(:cancelled_order, user: u5)
-      o7 = create(:order, user: u6)
+      o1 = create(:shipped_order, user: @u1, address: a1)
+      o2 = create(:shipped_order, user: @u2, address: a2)
+      o3 = create(:shipped_order, user: @u3, address: a3)
+      o4 = create(:shipped_order, user: @u1, address: a1)
+      o5 = create(:shipped_order, user: @u1, address: a1)
+      o6 = create(:cancelled_order, user: u5, address: a5)
+      o7 = create(:order, user: u6, address: a6)
       @oi1 = create(:order_item, item: @i1, order: o1, quantity: 2, created_at: 1.days.ago)
       @oi2 = create(:order_item, item: @i2, order: o2, quantity: 8, created_at: 7.days.ago)
       @oi3 = create(:order_item, item: @i2, order: o3, quantity: 6, created_at: 7.days.ago)
@@ -111,6 +117,54 @@ RSpec.describe User, type: :model do
       @oi5.fulfill
       @oi6.fulfill
       @oi7.fulfill
+    end
+
+    it '.items_with_placeholder_image' do
+      merchant = create(:merchant)
+      item1 = create(:item, user: merchant)
+      item2 = create(:item, user: merchant, image: 'www.picture.com')
+      item3 = create(:item, user: merchant)
+      item4 = create(:item, user: merchant)
+
+      expect(merchant.items_with_placeholder_image).to eq([item1, item3, item4])
+    end
+
+    it '.unfulfilled_orders_count' do
+      user = create(:user)
+      address = create(:address, user: user)
+      merchant = create(:merchant)
+      item1 = create(:item, user: merchant)
+      item2 = create(:item, user: merchant)
+      item3 = create(:item, user: merchant)
+      item4 = create(:item, user: merchant)
+      o1 = create(:order, status: 'pending', address: address, user: user)
+      o2 = create(:order, status: 'pending', address: address, user: user)
+      o3 = create(:order, status: 'shipped', address: address, user: user)
+      oi1 = create(:order_item, item: item1, order: o1)
+      oi2 = create(:order_item, item: item2, order: o2)
+      oi3 = create(:order_item, item: item3, order: o3)
+      oi4 = create(:order_item, item: item2, order: o1)
+
+      expect(merchant.unfulfilled_orders_count).to eq(2)
+    end
+
+    it '.unfulfilled_orders_revenue' do
+      user = create(:user)
+      address = create(:address, user: user)
+      merchant = create(:merchant)
+      item1 = create(:item, user: merchant)
+      item2 = create(:item, user: merchant)
+      item3 = create(:item, user: merchant)
+      item4 = create(:item, user: merchant)
+      o1 = create(:order, status: 'pending', address: address, user: user)
+      o2 = create(:order, status: 'pending', address: address, user: user)
+      o3 = create(:order, status: 'shipped', address: address, user: user)
+      oi1 = create(:order_item, item: item1, order: o1, quantity: 3, price: 2)
+      oi2 = create(:order_item, item: item2, order: o2, quantity: 2, price: 4)
+      oi3 = create(:order_item, item: item3, order: o3, quantity: 5, price: 5)
+      oi4 = create(:order_item, item: item2, order: o1, quantity: 1, price: 4)
+
+      expect(merchant.unfulfilled_orders_revenue).to eq(18)
     end
 
     it '.active_items' do

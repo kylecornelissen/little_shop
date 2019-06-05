@@ -97,6 +97,22 @@ class User < ApplicationRecord
          .limit(1).first
   end
 
+  def items_with_placeholder_image
+    items.where('image LIKE ?', '%picsum.photo%')
+  end
+
+  def unfulfilled_orders_count
+    Order.joins(:items)
+        .where('items.merchant_id' => self.id, 'orders.status' => 'pending')
+        .distinct.count(:id)
+  end
+
+  def unfulfilled_orders_revenue
+    Order.joins(:items).where('items.merchant_id' => self.id, 'orders.status' => 'pending')
+    .sum('order_items.quantity * order_items.price')
+
+  end
+
   def self.active_merchants
     where(role: :merchant, active: true)
   end
