@@ -22,6 +22,7 @@ RSpec.describe Address, type: :model do
 
       @order_1 = create(:order, address: @address_1, user: @user_1, status: 'shipped')
       @order_2 = create(:order, address: @address_1, user: @user_1)
+      @order_3 = create(:order, address: @address_2, user: @user_1)
     end
 
     it '#used_in_completed_order' do
