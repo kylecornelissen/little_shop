@@ -4,6 +4,6 @@ class Address < ApplicationRecord
   validates_presence_of :name, :street, :city, :state, :zip
 
   def used_in_completed_order
-    Order.exists?(status: 'shipped', address: self)
+    Order.exists?(address: self)
   end
 end
