@@ -7,7 +7,8 @@ RSpec.describe 'user profile', type: :feature do
     @address1 = create(:address, user: @user)
     @address2 = create(:address, user: @user)
 
-    @order = create(:order, user: @user, address: @address1, status: 'shipped')
+    @order1 = create(:order, user: @user, address: @address1, status: 'shipped')
+    @order2 = create(:order, user: @user, address: @address2)
   end
 
   describe 'registered user visits their profile' do
