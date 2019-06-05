@@ -29,7 +29,7 @@ RSpec.describe 'merchant dashboard' do
       after :each do
         expect(page).to have_content(@merchant.name)
         expect(page).to have_content("Email: #{@merchant.email}")
-        expect(page).to have_content("Address: #{@merchant.address}")
+        expect(page).to have_content("Address: #{@merchant.street}")
         expect(page).to have_content("City: #{@merchant.city}")
         expect(page).to have_content("State: #{@merchant.state}")
         expect(page).to have_content("Zip: #{@merchant.zip}")
@@ -46,7 +46,7 @@ RSpec.describe 'merchant dashboard' do
     it 'shows merchant information' do
       expect(page).to have_content(@merchant.name)
       expect(page).to have_content("Email: #{@merchant.email}")
-      expect(page).to have_content("Address: #{@merchant.address}")
+      expect(page).to have_content("Address: #{@merchant.street}")
       expect(page).to have_content("City: #{@merchant.city}")
       expect(page).to have_content("State: #{@merchant.state}")
       expect(page).to have_content("Zip: #{@merchant.zip}")

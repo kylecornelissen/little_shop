@@ -8,7 +8,8 @@ RSpec.describe 'merchant order show workflow' do
       @merchant1 = create(:merchant)
       @merchant2 = create(:merchant)
       @user = create(:user)
-      @order = create(:order, user: @user)
+      @address = create(:address, user: @user)
+      @order = create(:order, user: @user, address: @address)
       @item1 = create(:item, user: @merchant1, inventory: 2)
       @item2 = create(:item, user: @merchant2, inventory: 2)
       @item3 = create(:item, user: @merchant1, inventory: 2)
@@ -32,7 +33,7 @@ RSpec.describe 'merchant order show workflow' do
         visit dashboard_order_path(@order)
 
         expect(page).to have_content("Customer Name: #{@user.name}")
-        expect(page).to have_content("Customer Address: #{@user.address} #{@user.city}, #{@user.state} #{@user.zip}")
+        expect(page).to have_content("Shipping Address: #{@address.street} #{@address.city}, #{@address.state} #{@address.zip}")
       end
 
       it 'shows item information for that merchant' do
@@ -97,12 +98,12 @@ RSpec.describe 'merchant order show workflow' do
           item_3 = create(:item, user: @merchant_1)
 
           item_2 = create(:item)
-
-          @order_1 = create(:order, user: user)
+          address = create(:address, user: user)
+          @order_1 = create(:order, user: user, address: address)
           @oi_1 = create(:order_item, order: @order_1, item: item_1, price: 1, quantity: 10)
           create(:fulfilled_order_item, order: @order_1, item: item_2, price: 1, quantity: 1)
 
-          @order_2 = create(:order, user: user)
+          @order_2 = create(:order, user: user, address: address)
           @oi_3 = create(:order_item, order: @order_2, item: item_3, price: 1, quantity: 1)
         end
 

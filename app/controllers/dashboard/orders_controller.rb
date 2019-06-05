@@ -4,6 +4,7 @@ class Dashboard::OrdersController < Dashboard::BaseController
     @merchant = current_user
     @order = Order.find(params[:id])
     @user = @order.user
+    @order_address = @order.address
     @order_items = @order.order_items_for_merchant(@merchant.id)
   end
 

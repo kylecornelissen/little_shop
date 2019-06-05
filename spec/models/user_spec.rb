@@ -6,7 +6,7 @@ RSpec.describe User, type: :model do
     it { should validate_uniqueness_of :email }
     it { should validate_presence_of :password }
     it { should validate_presence_of :name }
-    it { should validate_presence_of :address }
+    it { should validate_presence_of :street }
     it { should validate_presence_of :city }
     it { should validate_presence_of :state }
     it { should validate_presence_of :zip }
@@ -15,6 +15,7 @@ RSpec.describe User, type: :model do
   describe 'relationships' do
     # as user
     it { should have_many :orders }
+    it { should have_many :addresses }
     it { should have_many(:order_items).through(:orders)}
     # as merchant
     it { should have_many :items }
@@ -26,7 +27,7 @@ RSpec.describe User, type: :model do
         email: "email",
         password: "password",
         name: "name",
-        address: "address",
+        street: "street",
         city: "city",
         state: "state",
         zip: "zip"
@@ -40,7 +41,7 @@ RSpec.describe User, type: :model do
         email: "email",
         password: "password",
         name: "name",
-        address: "address",
+        street: "street",
         city: "city",
         state: "state",
         zip: "zip",
@@ -55,7 +56,7 @@ RSpec.describe User, type: :model do
         email: "email",
         password: "password",
         name: "name",
-        address: "address",
+        street: "street",
         city: "city",
         state: "state",
         zip: "zip",

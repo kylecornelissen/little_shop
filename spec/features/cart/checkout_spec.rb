@@ -23,10 +23,14 @@ RSpec.describe "Checking out" do
   context "as a logged in regular user" do
     before :each do
       user = create(:user)
+      address1 = create(:address, user: user)
+      address2 = create(:address, user: user)
       login_as(user)
       visit cart_path
 
-      click_button "Check Out"
+      within "#address-details-#{address2.id}" do
+        click_button "Check Out with this Address"
+      end
       @new_order = Order.last
     end
 
@@ -72,6 +76,18 @@ RSpec.describe "Checking out" do
         expect(page).to have_content("Quantity: 2")
         expect(page).to have_content("Fulfilled: No")
       end
+    end
+  end
+
+  context "as a user with no addresses" do
+    it 'should not be able to see a check out button' do
+      user = create(:user)
+      login_as(user)
+
+      visit cart_path
+
+      expect(page).to have_content("You don't have any addresses in your account")
+      expect(page).to have_link("Add an Address to Check Out")
     end
   end
 
