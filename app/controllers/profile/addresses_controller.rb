@@ -4,9 +4,15 @@ class Profile::AddressesController < ApplicationController
   end
 
   def create
-    current_user.addresses << Address.create(address_params)
-    flash[:success] = "Your new address has been added."
-    redirect_to profile_path
+    @address = Address.new(address_params)
+    current_user.addresses << @address
+    if @address.save
+      flash[:success] = "Your new address has been added."
+      redirect_to profile_path
+    else
+      flash[:danger] = "The address you entered is missing required fields."
+      render :new
+    end
   end
 
   def edit
